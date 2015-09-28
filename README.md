@@ -7,11 +7,9 @@ Rush is a unix shell written in rust. The goal is to eventually have a fully fea
 * Built-in commands
     * ```cd``` - change the current working directory.
     * ```pwd``` - print the current working directory.
-* Execute external programs
-    * currently only supports running one process at a time
+* Execute external programs, both as blocking and in backgound
 
 ### Features planned soon:
-* Allow Execution of background processes.
 * Parse commands to replace enironment variables with their values.
 * Commands to get and set environment variables.
 

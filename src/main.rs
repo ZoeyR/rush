@@ -1,12 +1,18 @@
 use std::io::{self, Write};
 use std::env;
+use std::process::Child;
 use cmd::ShellCommand;
 
 pub mod cmd;
+mod process;
+
+extern crate wait_timeout;
 
 fn main() {
     let mut input = String::new();
+    let mut children: Vec<Child> = Vec::new();
     loop {
+        children = process::check_children(children);
         // if we aren't in a valid directory I will eat my hat.
         let dir = env::current_dir().unwrap();
         print!("{} >", dir.display());
@@ -25,7 +31,12 @@ fn main() {
         match cmd {
             Some(cmd) => {
                 match cmd::run_command(&cmd) {
-                    Ok(_) => {},
+                    Ok(option) => {
+                        match option {
+                            Some(child) => children.push(child),
+                            None => {},
+                        }
+                    },
                     Err(error) => {
                         println!("Error executing command: {}", error);
                         continue;
