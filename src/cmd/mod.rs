@@ -1,6 +1,9 @@
 pub use self::builtin::*;
+
 use std;
-use std::process::{Command, Child};
+use std::process::Command;
+use process::ShellProcess;
+use shell::Shell;
 mod builtin;
 
 extern crate shlex;
@@ -35,42 +38,41 @@ impl ShellCommand {
     }
 }
 
-pub fn run_command(cmd: &ShellCommand) -> Result<Option<Child>, String> {
+pub fn run_command(cmd: &ShellCommand, shell: &mut Shell) -> Result<(), String> {
     let name: &str = &cmd.name;
     match name {
         CD => {
-            cd(cmd);
+            try!(cd(cmd));
         },
         PWD => {
-            pwd(cmd);
+            try!(pwd(cmd));
+        },
+        JOBS => {
+            try!(jobs(cmd, shell));
         },
         EXIT => {
             std::process::exit(0);
         },
         _ => {
-            return run_extern(cmd);
+            match try!(run_extern(cmd)) {
+                Some(child) => shell.jobs.push(child),
+                None => {}
+            }
         }
     }
-    return Ok(None);
+    return Ok(());
 }
 
-fn run_extern(cmd: &ShellCommand) -> Result<Option<Child>, String>{
-    let child = Command::new(&cmd.name)
+fn run_extern(cmd: &ShellCommand) -> Result<Option<ShellProcess>, String>{
+    let mut child = try!(Command::new(&cmd.name)
         .args(&cmd.args)
         .spawn()
-        .map_err(|e| format!("{}", e));
+        .map_err(|e| format!("{}", e)));
 
-    match child {
-        Ok(mut childproc) => {
-            if !cmd.background {
-                childproc.wait();
-                Ok(None)
-            } else {
-                Ok(Some(childproc))
-            }
-        },
-        Err(error) => {
-            Err(error)
-        }
+    if !cmd.background {
+        try!(child.wait().map_err(|e| format!("{}", e)));
+        Ok(None)
+    } else {
+        Ok(Some(ShellProcess{name: cmd.name.clone(), child: child}))
     }
 }

@@ -1,16 +1,20 @@
 use std::process::Child;
 use wait_timeout::ChildExt;
 
+/// Background shell process
+pub struct ShellProcess {
+    pub name: String,
+    pub child: Child,
+}
 
-
-pub fn check_children(children: Vec<Child>) -> Vec<Child> {
-    let mut ret: Vec<Child> = Vec::new();
-    for mut child in children {
-        match child.wait_timeout_ms(0).unwrap() {
+pub fn check_children(processes: Vec<ShellProcess>) -> Vec<ShellProcess> {
+    let mut ret: Vec<ShellProcess> = Vec::new();
+    for mut process in processes {
+        match process.child.wait_timeout_ms(0).unwrap() {
             Some(status) => {
-                println!("{}:{}", child.id(), status);
+                println!("{}: {}", process.name, status);
             },
-            None => ret.push(child),
+            None => ret.push(process),
         }
     }
 

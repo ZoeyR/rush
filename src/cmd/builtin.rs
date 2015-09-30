@@ -4,6 +4,7 @@ use std::path::Path;
 pub const EXIT: &'static str = "exit";
 pub const CD: &'static str = "cd";
 pub const PWD: &'static str = "pwd";
+pub const JOBS: &'static str = "jobs";
 
 pub fn cd(cmd: &super::ShellCommand) -> Result<(), String> {
     let dir = match cmd.args.len() {
@@ -26,5 +27,12 @@ pub fn pwd(cmd: &super::ShellCommand) -> Result<(), String> {
     }
 
     println!("{}", env::current_dir().unwrap().to_string_lossy());
+    Ok(())
+}
+
+pub fn jobs(_: &super::ShellCommand, shell: &::shell::Shell) -> Result<(), String> {
+    for job in &shell.jobs {
+        println!("{}", job.name);
+    }
     Ok(())
 }
