@@ -9,7 +9,7 @@ mod builtin;
 extern crate shlex;
 
 pub struct ShellCommand {
-    name: String,
+    pub name: String,
     args: Vec<String>,
     background: bool,
 }
