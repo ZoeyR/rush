@@ -27,4 +27,4 @@ Rush requires the following programs to be installed on your system in order to 
 ```cd rush```
 3. Compile with cargo  
 ```cargo build --release```
-4. Either run using ```cargo run``` or run the executable file directly. The binary will be located at $RUSH_HOME/target/release/rush.
+4. Either run using ```cargo run --release``` or run the executable file directly. The binary will be located at $RUSH_HOME/target/release/rush.
